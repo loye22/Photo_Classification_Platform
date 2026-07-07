@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Welcome to Photo Classification Platform</h1>
+{% if user.is_authenticated %}
+<p>Hello, {{ user.email }}!</p>
+<p>You can upload a photo with metadata using the <a href="{% url 'submit' %}">Upload</a> form.</p>
+{% else %}
+<p>Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> to get started.</p>
+{% endif %}
+{% endblock %}
