@@ -1,42 +1,6 @@
 # TODO List
 
-## 1. Database (SQLite)
 
-### Create Database Schema
-
-#### Users
-- Create `User` table (Django Auth)
-  - id
-  - email
-  - password
-  - is_admin
-  - created_at
-
-#### Submissions
-- Create `Submission` table
-  - id
-  - user_id (Foreign Key → User)
-  - photo_url
-  - name
-  - age
-  - gender
-  - place_of_living
-  - country_of_origin
-  - description (nullable)
-  - classification_result
-  - created_at
-  - updated_at
-
-### Database Configuration
-- Add foreign key relationship (User → Submission)
-- Create indexes for:
-  - age
-  - gender
-  - place_of_living
-  - country_of_origin
-  - created_at
-
----
 
 ## 2. Authentication
 
