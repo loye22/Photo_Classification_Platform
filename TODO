@@ -1,0 +1,110 @@
+# TODO List
+
+## 1. Database (SQLite)
+
+### Create Database Schema
+
+#### Users
+- Create `User` table (Django Auth)
+  - id
+  - email
+  - password
+  - is_admin
+  - created_at
+
+#### Submissions
+- Create `Submission` table
+  - id
+  - user_id (Foreign Key → User)
+  - photo_url
+  - name
+  - age
+  - gender
+  - place_of_living
+  - country_of_origin
+  - description (nullable)
+  - classification_result
+  - created_at
+  - updated_at
+
+### Database Configuration
+- Add foreign key relationship (User → Submission)
+- Create indexes for:
+  - age
+  - gender
+  - place_of_living
+  - country_of_origin
+  - created_at
+
+---
+
+## 2. Authentication
+
+- User registration
+- User login (JWT)
+- Refresh token
+- Protected API endpoints
+- Admin role authorization
+
+---
+
+## 3. Submission Service
+
+- Upload photo
+- Store uploaded photo
+- Save submission metadata
+- Return dummy classification result
+
+---
+
+## 4. Admin Panel
+
+- List all submissions
+- Filter submissions by:
+  - age
+  - gender
+  - location
+  - country
+- View submission details
+
+---
+
+## 5. Microservices
+
+- Authentication Service
+- Submission Service
+- PostgreSQL integration
+- Docker Compose setup
+
+---
+
+## 6. Security
+
+- JWT authentication
+- Validate uploaded images
+- Enforce file size limits
+- Validate request inputs
+- Restrict admin-only endpoints
+
+---
+
+## 7. Documentation
+
+- Swagger / OpenAPI
+- API documentation
+- Project README
+
+---
+
+## 8. CI/CD
+
+- Set up CI/CD pipeline
+
+---
+
+## 9. Kubernetes
+
+- Create Kubernetes deployment
+- Create services
+- Configure ingress
+- Add ConfigMaps and Secrets
