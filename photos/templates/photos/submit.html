@@ -31,8 +31,8 @@
             <input type="text" name="country_of_origin" placeholder="e.g. USA" required>
         </div>
         <div>
-            <label>Photo File:</label>
-            <input type="file" name="photo_file" accept="image/*" style="padding: 7px; background-color: #f8f9fa;" required>
+            <label>Photo File (Images only, max 4MB):</label>
+            <input type="file" id="photo_file" name="photo_file" accept="image/*" style="padding: 7px; background-color: #f8f9fa;" required onchange="validateFile(this)">
         </div>
     </div>
     
@@ -46,4 +46,24 @@
         <button type="submit" class="btn">Submit Photo</button>
     </div>
 </form>
+
+<script>
+function validateFile(input) {
+    const file = input.files[0];
+    if (file) {
+        const maxSize = 4 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('File size exceeds the 4 MB limit. Please select a smaller image.');
+            input.value = '';
+            return false;
+        }
+        if (!file.type.startsWith('image/')) {
+            alert('Invalid file format. Please select an image file.');
+            input.value = '';
+            return false;
+        }
+    }
+    return true;
+}
+</script>
 {% endblock %}

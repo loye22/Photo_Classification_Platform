@@ -12,18 +12,6 @@
 
 ---
 
-## 4. Admin Panel
-
-- List all submissions
-- Filter submissions by:
-  - age
-  - gender
-  - location
-  - country
-- View submission details
-
----
-
 ## 5. Microservices
 
 - Authentication Service

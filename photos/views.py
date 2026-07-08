@@ -41,6 +41,15 @@ def submit(request):
         photo_file = request.FILES.get('photo_file')
 
         if photo_file and name and age and gender and place_of_living and country_of_origin:
+            # Enforce safety constraints: maximum 4 MB and images only
+            if photo_file.size > 4 * 1024 * 1024:
+                messages.error(request, 'The uploaded file is too large (maximum allowed size is 4 MB).')
+                return render(request, 'photos/submit.html')
+
+            if not photo_file.content_type.startswith('image/'):
+                messages.error(request, 'Invalid file type. Only image files are allowed.')
+                return render(request, 'photos/submit.html')
+
             import os
             from django.core.files.storage import default_storage
             from django.core.files.base import ContentFile
@@ -54,6 +63,16 @@ def submit(request):
                 mime_type=photo_file.content_type,
                 size_bytes=photo_file.size,
             )
+
+       
+            file_size = photo_file.size
+            if file_size < 500 * 1024:
+                classification = "Small Image"
+            elif file_size < 2 * 1024 * 1024:
+                classification = "Medium Image"
+            else:
+                classification = "Large Image"
+
             submission = Submission.objects.create(
                 user=request.user,
                 photo=photo,
@@ -63,6 +82,7 @@ def submit(request):
                 place_of_living=place_of_living,
                 country_of_origin=country_of_origin,
                 description=description,
+                classification_result=classification,
             )
             messages.success(request, 'Submission created!')
             return redirect('home')
@@ -82,16 +102,25 @@ def admin_panel(request):
     if request.method == 'POST':
         action = request.POST.get('action')
         submission_id = request.POST.get('submission_id')
-        if action == 'update_status' and submission_id:
+        if action == 'update_submission' and submission_id:
             try:
                 submission = Submission.objects.get(id=submission_id)
                 new_status = request.POST.get('status')
+                new_safety_rule = request.POST.get('safety_rule')
+                
+                updated_fields = []
                 if new_status in Submission.StatusChoices.values:
                     submission.status = new_status
+                    updated_fields.append(f"Status to {submission.get_status_display()}")
+                if new_safety_rule in Submission.SafetyRuleChoices.values:
+                    submission.safety_rule = new_safety_rule
+                    updated_fields.append(f"Safety Rule to {submission.get_safety_rule_display()}")
+                
+                if updated_fields:
                     submission.save()
-                    messages.success(request, f"Status of Submission {submission.id} updated to {submission.get_status_display()}.")
+                    messages.success(request, f"Submission {submission.id} updated: {', '.join(updated_fields)}.")
                 else:
-                    messages.error(request, "Invalid status choice.")
+                    messages.error(request, "No updates applied.")
             except Submission.DoesNotExist:
                 messages.error(request, "Submission not found.")
             return redirect('admin_panel')
@@ -107,7 +136,9 @@ def admin_panel(request):
             Q(country_of_origin__icontains=search_query) |
             Q(place_of_living__icontains=search_query) |
             Q(user__email__icontains=search_query) |
-            Q(status__icontains=search_query)
+            Q(status__icontains=search_query) |
+            Q(classification_result__icontains=search_query) |
+            Q(safety_rule__icontains=search_query)
         )
 
     # Filter functionality
@@ -151,4 +182,4 @@ def admin_panel(request):
         'min_age': min_age,
         'max_age': max_age,
     }
-    return render(request, 'photos/admin_panel.html', context)
+    return render(request, 'photos/admin_panel.html', context)

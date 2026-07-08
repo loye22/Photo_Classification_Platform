@@ -118,6 +118,21 @@
         color: #721c24;
     }
 
+    .badge-safe {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-needs_review {
+        background-color: #ffeeba;
+        color: #856404;
+    }
+
+    .badge-unsafe {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
     .thumbnail-link {
         display: inline-block;
     }
@@ -288,7 +303,6 @@
 <h2>Admin Panel</h2>
 <p style="color: #666; margin-bottom: 20px;">Review, search, and filter all submitted photo records.</p>
 
-<!-- Search and Filter Form -->
 <div class="card">
     <div class="card-title">Search & Filters</div>
     <form method="get" action="{% url 'admin_panel' %}">
@@ -303,9 +317,9 @@
                 <label for="gender">Gender</label>
                 <select name="gender" id="gender">
                     <option value="">All Genders</option>
-                    <option value="male" {% if selected_gender == 'male' %}selected{% endif %}>Male</option>
-                    <option value="female" {% if selected_gender == 'female' %}selected{% endif %}>Female</option>
-                    <option value="other" {% if selected_gender == 'other' %}selected{% endif %}>Other</option>
+                    <option value="male" {% if selected_gender=='male' %}selected{% endif %}>Male</option>
+                    <option value="female" {% if selected_gender=='female' %}selected{% endif %}>Female</option>
+                    <option value="other" {% if selected_gender=='other' %}selected{% endif %}>Other</option>
                 </select>
             </div>
 
@@ -313,10 +327,10 @@
                 <label for="status">Status</label>
                 <select name="status" id="status">
                     <option value="">All Statuses</option>
-                    <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
-                    <option value="processed" {% if selected_status == 'processed' %}selected{% endif %}>Processed
+                    <option value="pending" {% if selected_status=='pending' %}selected{% endif %}>Pending</option>
+                    <option value="processed" {% if selected_status=='processed' %}selected{% endif %}>Processed
                     </option>
-                    <option value="failed" {% if selected_status == 'failed' %}selected{% endif %}>Failed</option>
+                    <option value="failed" {% if selected_status=='failed' %}selected{% endif %}>Failed</option>
                 </select>
             </div>
 
@@ -325,7 +339,7 @@
                 <select name="country" id="country">
                     <option value="">All Countries</option>
                     {% for country in countries %}
-                    <option value="{{ country }}" {% if selected_country == country %}selected{% endif %}>{{ country }}
+                    <option value="{{ country }}" {% if selected_country==country %}selected{% endif %}>{{ country }}
                     </option>
                     {% endfor %}
                 </select>
@@ -349,7 +363,7 @@
     </form>
 </div>
 
-<!-- Submissions Table -->
+
 <div class="card">
     <div class="card-title">
         <span>Submitted Records ({{ submissions.count }} found)</span>
@@ -364,6 +378,7 @@
                     <th>User / Submitter</th>
                     <th>Metadata</th>
                     <th>Location</th>
+                    <th>Classification</th>
                     <th>Status</th>
                     <th>Submitted At</th>
                     <th>Actions</th>
@@ -394,6 +409,10 @@
                         <div style="font-size: 0.8rem; color: #666;">{{ submission.country_of_origin }}</div>
                     </td>
                     <td>
+                        <span style="font-weight: 500; font-size: 0.9rem;">{{
+                            submission.classification_result|default:"Pending classification" }}</span>
+                    </td>
+                    <td>
                         <span class="badge badge-{{ submission.status }}">{{ submission.get_status_display }}</span>
                     </td>
                     <td style="font-size: 0.85rem; color: #666;">
@@ -415,7 +434,7 @@
     </div>
 </div>
 
-<!-- Detailed Modals for each submission -->
+
 {% for submission in submissions %}
 <div id="modal-{{ submission.id }}" class="modal">
     <div class="modal-content">
@@ -425,7 +444,7 @@
         </h3>
 
         <div class="detail-grid">
-            <!-- Left Side: Photo -->
+
             <div class="detail-image-container">
                 {% if submission.photo.storage_url %}
                 <img src="{{ submission.photo.storage_url }}" alt="Full submission photo" class="detail-image">
@@ -434,7 +453,6 @@
                 {% endif %}
             </div>
 
-            <!-- Right Side: Details -->
             <div class="detail-info">
                 <div class="detail-row">
                     <div class="detail-label">Submission ID</div>
@@ -471,59 +489,60 @@
                 </div>
                 {% endif %}
 
-                <!-- Safety Rules JSON -->
+
                 <div class="detail-row">
-                    <div class="detail-label">Safety Rules</div>
-                    <div class="detail-json-list">
-                        {% if submission.safety_rules %}
-                        <ul>
-                            {% for key, val in submission.safety_rules.items %}
-                            <li><strong>{{ key }}:</strong> {{ val }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <span style="font-size: 0.85rem; color: #777; font-style: italic;">No safety rules
-                            provided.</span>
-                        {% endif %}
+                    <div class="detail-label">Safety Rule</div>
+                    <div class="detail-value">
+                        <span class="badge badge-{{ submission.safety_rule }}">{{ submission.get_safety_rule_display
+                            }}</span>
                     </div>
                 </div>
 
-                <!-- Classification Results JSON -->
+
                 <div class="detail-row">
                     <div class="detail-label">Classification Result</div>
-                    <div class="detail-json-list">
-                        {% if submission.classification_result %}
-                        <ul>
-                            {% for key, val in submission.classification_result.items %}
-                            <li><strong>{{ key }}:</strong> {{ val }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <span style="font-size: 0.85rem; color: #777; font-style: italic;">Pending
-                            classification.</span>
-                        {% endif %}
+                    <div class="detail-value">
+                        <strong>{{ submission.classification_result|default:"Pending classification" }}</strong>
                     </div>
                 </div>
 
-                <!-- Action: Status Update Form -->
                 <div style="margin-top: 10px; padding-top: 15px; border-top: 2px dashed #eee;">
                     <form method="post" action="{% url 'admin_panel' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="action" value="update_status">
+                        <input type="hidden" name="action" value="update_submission">
                         <input type="hidden" name="submission_id" value="{{ submission.id }}">
 
-                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                            <label style="font-weight: bold; margin-bottom: 0;">Submission Status:</label>
-                            <select name="status" style="width: auto; margin: 0; padding: 6px;">
-                                <option value="pending" {% if submission.status == 'pending' %}selected{% endif %}>Pending
-                                </option>
-                                <option value="processed" {% if submission.status == 'processed' %}selected{% endif %}>
-                                    Processed</option>
-                                <option value="failed" {% if submission.status == 'failed' %}selected{% endif %}>Failed
-                                </option>
-                            </select>
-                            <button type="submit" class="btn btn-sm" style="background-color: #28a745;">Update
-                                Status</button>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <label style="font-weight: bold; margin-bottom: 0; min-width: 140px;">Submission
+                                    Status:</label>
+                                <select name="status" style="width: auto; margin: 0; padding: 6px;">
+                                    <option value="pending" {% if submission.status=='pending' %}selected{% endif %}>
+                                        Pending</option>
+                                    <option value="processed" {% if submission.status=='processed' %}selected{% endif
+                                        %}>Processed</option>
+                                    <option value="failed" {% if submission.status=='failed' %}selected{% endif %}>
+                                        Failed</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <label style="font-weight: bold; margin-bottom: 0; min-width: 140px;">Safety
+                                    Rule:</label>
+                                <select name="safety_rule" style="width: auto; margin: 0; padding: 6px;">
+                                    <option value="safe" {% if submission.safety_rule=='safe' %}selected{% endif %}>Safe
+                                    </option>
+                                    <option value="needs_review" {% if submission.safety_rule=='needs_review'
+                                        %}selected{% endif %}>Needs Review</option>
+                                    <option value="unsafe" {% if submission.safety_rule=='unsafe' %}selected{% endif %}>
+                                        Unsafe</option>
+                                </select>
+                            </div>
+
+                            <div style="text-align: right;">
+                                <button type="submit" class="btn btn-sm" style="background-color: #28a745;">Save
+                                    Changes</button>
+                            </div>
                         </div>
                     </form>
                 </div>

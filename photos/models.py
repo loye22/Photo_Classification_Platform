@@ -32,6 +32,11 @@ class Submission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
     photo = models.OneToOneField(Photo, on_delete=models.CASCADE, related_name='submission')  # 1:1 for now
 
+    class SafetyRuleChoices(models.TextChoices):
+        SAFE = 'safe', 'Safe'
+        NEEDS_REVIEW = 'needs_review', 'Needs Review'
+        UNSAFE = 'unsafe', 'Unsafe'
+
     # User-provided metadata
     name = models.CharField(max_length=255)
     age = models.PositiveSmallIntegerField()  # 0-32767
@@ -40,13 +45,14 @@ class Submission(models.Model):
     country_of_origin = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
-    # CRITICAL: Safety Rules.
-    # Using JSON to store flexible rules like {"visibility": "private", "allow_download": false, "max_views": 100}
-    safety_rules = models.JSONField(default=dict, blank=True)
+    safety_rule = models.CharField(
+        max_length=20,
+        choices=SafetyRuleChoices.choices,
+        default=SafetyRuleChoices.SAFE
+    )
 
-    # CRITICAL: Classification result stored as structured JSON. 
-    # Example: {"label": "cat", "confidence": 0.98, "model_version": "v2"}
-    classification_result = models.JSONField(null=True, blank=True)
+    # Classification result stored as text (e.g. Small Image, Medium Image, Large Image).
+    classification_result = models.CharField(max_length=255, blank=True, null=True)
 
     status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.PENDING)
 
