@@ -317,9 +317,9 @@
                 <label for="gender">Gender</label>
                 <select name="gender" id="gender">
                     <option value="">All Genders</option>
-                    <option value="male" {% if selected_gender=='male' %}selected{% endif %}>Male</option>
-                    <option value="female" {% if selected_gender=='female' %}selected{% endif %}>Female</option>
-                    <option value="other" {% if selected_gender=='other' %}selected{% endif %}>Other</option>
+                    <option value="male" {% if selected_gender == 'male' %}selected{% endif %}>Male</option>
+                    <option value="female" {% if selected_gender == 'female' %}selected{% endif %}>Female</option>
+                    <option value="other" {% if selected_gender == 'other' %}selected{% endif %}>Other</option>
                 </select>
             </div>
 
@@ -327,10 +327,9 @@
                 <label for="status">Status</label>
                 <select name="status" id="status">
                     <option value="">All Statuses</option>
-                    <option value="pending" {% if selected_status=='pending' %}selected{% endif %}>Pending</option>
-                    <option value="processed" {% if selected_status=='processed' %}selected{% endif %}>Processed
-                    </option>
-                    <option value="failed" {% if selected_status=='failed' %}selected{% endif %}>Failed</option>
+                    <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="processed" {% if selected_status == 'processed' %}selected{% endif %}>Processed</option>
+                    <option value="failed" {% if selected_status == 'failed' %}selected{% endif %}>Failed</option>
                 </select>
             </div>
 
@@ -339,8 +338,7 @@
                 <select name="country" id="country">
                     <option value="">All Countries</option>
                     {% for country in countries %}
-                    <option value="{{ country }}" {% if selected_country==country %}selected{% endif %}>{{ country }}
-                    </option>
+                    <option value="{{ country }}" {% if selected_country == country %}selected{% endif %}>{{ country }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -401,16 +399,14 @@
                     </td>
                     <td>
                         <div style="font-weight: 600; font-size: 0.95rem;">{{ submission.name }}</div>
-                        <div style="font-size: 0.85rem; color: #666;">Age: {{ submission.age }} | Gender: {{
-                            submission.gender|capfirst }}</div>
+                        <div style="font-size: 0.85rem; color: #666;">Age: {{ submission.age }} | Gender: {{ submission.gender|capfirst }}</div>
                     </td>
                     <td>
                         <div style="font-size: 0.9rem;">{{ submission.place_of_living }}</div>
                         <div style="font-size: 0.8rem; color: #666;">{{ submission.country_of_origin }}</div>
                     </td>
                     <td>
-                        <span style="font-weight: 500; font-size: 0.9rem;">{{
-                            submission.classification_result|default:"Pending classification" }}</span>
+                        <span style="font-weight: 500; font-size: 0.9rem;">{{ submission.classification_result|default:"Pending classification" }}</span>
                     </td>
                     <td>
                         <span class="badge badge-{{ submission.status }}">{{ submission.get_status_display }}</span>
@@ -470,8 +466,7 @@
                     <div class="detail-label">Personal Details</div>
                     <div class="detail-value">
                         <strong>Name:</strong> {{ submission.name }}<br>
-                        <strong>Age:</strong> {{ submission.age }} | <strong>Gender:</strong> {{
-                        submission.gender|capfirst }}
+                        <strong>Age:</strong> {{ submission.age }} | <strong>Gender:</strong> {{ submission.gender|capfirst }}
                     </div>
                 </div>
 
@@ -514,34 +509,25 @@
 
                         <div style="display: flex; flex-direction: column; gap: 10px;">
                             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                                <label style="font-weight: bold; margin-bottom: 0; min-width: 140px;">Submission
-                                    Status:</label>
+                                <label style="font-weight: bold; margin-bottom: 0; min-width: 140px;">Submission Status:</label>
                                 <select name="status" style="width: auto; margin: 0; padding: 6px;">
-                                    <option value="pending" {% if submission.status=='pending' %}selected{% endif %}>
-                                        Pending</option>
-                                    <option value="processed" {% if submission.status=='processed' %}selected{% endif
-                                        %}>Processed</option>
-                                    <option value="failed" {% if submission.status=='failed' %}selected{% endif %}>
-                                        Failed</option>
+                                    <option value="pending" {% if submission.status == 'pending' %}selected{% endif %}>Pending</option>
+                                    <option value="processed" {% if submission.status == 'processed' %}selected{% endif %}>Processed</option>
+                                    <option value="failed" {% if submission.status == 'failed' %}selected{% endif %}>Failed</option>
                                 </select>
                             </div>
 
                             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                                <label style="font-weight: bold; margin-bottom: 0; min-width: 140px;">Safety
-                                    Rule:</label>
+                                <label style="font-weight: bold; margin-bottom: 0; min-width: 140px;">Safety Rule:</label>
                                 <select name="safety_rule" style="width: auto; margin: 0; padding: 6px;">
-                                    <option value="safe" {% if submission.safety_rule=='safe' %}selected{% endif %}>Safe
-                                    </option>
-                                    <option value="needs_review" {% if submission.safety_rule=='needs_review'
-                                        %}selected{% endif %}>Needs Review</option>
-                                    <option value="unsafe" {% if submission.safety_rule=='unsafe' %}selected{% endif %}>
-                                        Unsafe</option>
+                                    <option value="safe" {% if submission.safety_rule == 'safe' %}selected{% endif %}>Safe</option>
+                                    <option value="needs_review" {% if submission.safety_rule == 'needs_review' %}selected{% endif %}>Needs Review</option>
+                                    <option value="unsafe" {% if submission.safety_rule == 'unsafe' %}selected{% endif %}>Unsafe</option>
                                 </select>
                             </div>
 
                             <div style="text-align: right;">
-                                <button type="submit" class="btn btn-sm" style="background-color: #28a745;">Save
-                                    Changes</button>
+                                <button type="submit" class="btn btn-sm" style="background-color: #28a745;">Save Changes</button>
                             </div>
                         </div>
                     </form>
