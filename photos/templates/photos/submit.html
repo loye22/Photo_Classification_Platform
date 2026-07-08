@@ -1,20 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Upload Photo</h2>
+<p style="color: #666; margin-bottom: 25px;">Submit a new photo with its corresponding metadata for classification.</p>
+
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <label>Name:</label><input type="text" name="name" required>
-    <label>Age:</label><input type="number" name="age" required>
-    <label>Gender:</label>
-    <select name="gender" required>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="other">Other</option>
-    </select>
-    <label>Place of living:</label><input type="text" name="place_of_living" required>
-    <label>Country of origin:</label><input type="text" name="country_of_origin" required>
-    <label>Description:</label><textarea name="description" rows="4"></textarea>
-    <label>Photo:</label><input type="file" name="photo_file" required>
-    <button type="submit">Submit</button>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+        <div>
+            <label>Name:</label>
+            <input type="text" name="name" placeholder="e.g. Alice Smith" required>
+        </div>
+        <div>
+            <label>Age:</label>
+            <input type="number" name="age" min="0" placeholder="e.g. 25" required>
+        </div>
+        <div>
+            <label>Gender:</label>
+            <select name="gender" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div>
+            <label>Place of living:</label>
+            <input type="text" name="place_of_living" placeholder="e.g. Brooklyn, NY" required>
+        </div>
+        <div>
+            <label>Country of origin:</label>
+            <input type="text" name="country_of_origin" placeholder="e.g. USA" required>
+        </div>
+        <div>
+            <label>Photo File:</label>
+            <input type="file" name="photo_file" accept="image/*" style="padding: 7px; background-color: #f8f9fa;" required>
+        </div>
+    </div>
+    
+    <div style="margin-top: 15px;">
+        <label>Description:</label>
+        <textarea name="description" rows="4" placeholder="Provide any additional context or description here..."></textarea>
+    </div>
+    
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+        <a href="{% url 'home' %}" class="btn" style="background-color: #6c757d; border-color: #6c757d;">Cancel</a>
+        <button type="submit" class="btn">Submit Photo</button>
+    </div>
 </form>
 {% endblock %}

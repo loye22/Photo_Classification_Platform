@@ -69,3 +69,86 @@ def submit(request):
         else:
             messages.error(request, 'Please fill all required fields.')
     return render(request, 'photos/submit.html')
+
+
+from django.core.exceptions import PermissionDenied
+from django.db.models import Q
+
+@login_required
+def admin_panel(request):
+    if not getattr(request.user, 'is_admin', False):
+        raise PermissionDenied("You do not have permission to access the Admin Panel.")
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        submission_id = request.POST.get('submission_id')
+        if action == 'update_status' and submission_id:
+            try:
+                submission = Submission.objects.get(id=submission_id)
+                new_status = request.POST.get('status')
+                if new_status in Submission.StatusChoices.values:
+                    submission.status = new_status
+                    submission.save()
+                    messages.success(request, f"Status of Submission {submission.id} updated to {submission.get_status_display()}.")
+                else:
+                    messages.error(request, "Invalid status choice.")
+            except Submission.DoesNotExist:
+                messages.error(request, "Submission not found.")
+            return redirect('admin_panel')
+
+    submissions = Submission.objects.select_related('user', 'photo').all()
+
+    # Search functionality
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        submissions = submissions.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(country_of_origin__icontains=search_query) |
+            Q(place_of_living__icontains=search_query) |
+            Q(user__email__icontains=search_query) |
+            Q(status__icontains=search_query)
+        )
+
+    # Filter functionality
+    gender_filter = request.GET.get('gender', '').strip()
+    if gender_filter:
+        submissions = submissions.filter(gender=gender_filter)
+
+    status_filter = request.GET.get('status', '').strip()
+    if status_filter:
+        submissions = submissions.filter(status=status_filter)
+
+    country_filter = request.GET.get('country', '').strip()
+    if country_filter:
+        submissions = submissions.filter(country_of_origin__iexact=country_filter)
+
+    min_age = request.GET.get('min_age', '').strip()
+    if min_age:
+        try:
+            submissions = submissions.filter(age__gte=int(min_age))
+        except ValueError:
+            pass
+
+    max_age = request.GET.get('max_age', '').strip()
+    if max_age:
+        try:
+            submissions = submissions.filter(age__lte=int(max_age))
+        except ValueError:
+            pass
+
+    # Get unique countries for filter dropdown
+    countries = Submission.objects.values_list('country_of_origin', flat=True).distinct().order_by('country_of_origin')
+    countries = [c for c in countries if c]
+
+    context = {
+        'submissions': submissions,
+        'countries': countries,
+        'search_query': search_query,
+        'selected_gender': gender_filter,
+        'selected_status': status_filter,
+        'selected_country': country_filter,
+        'min_age': min_age,
+        'max_age': max_age,
+    }
+    return render(request, 'photos/admin_panel.html', context)

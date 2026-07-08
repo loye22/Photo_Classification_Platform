@@ -2,15 +2,6 @@
 
 
 
-## 2. Authentication
-
-- User registration
-- User login (JWT)
-- Refresh token
-- Protected API endpoints
-- Admin role authorization
-
----
 
 ## 3. Submission Service
 
@@ -54,9 +45,7 @@
 
 ## 7. Documentation
 
-- Swagger / OpenAPI
-- API documentation
-- Project README
+- Swagger 
 
 ---
 
@@ -68,7 +57,3 @@
 
 ## 9. Kubernetes
 
-- Create Kubernetes deployment
-- Create services
-- Configure ingress
-- Add ConfigMaps and Secrets

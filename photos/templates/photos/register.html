@@ -3,27 +3,28 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<h2>Register</h2>
-<form method="post">
-    {% csrf_token %}
-    <label>Email:</label>
-    <input type="email" name="email" required>
+<div style="max-width: 450px; margin: 0 auto;">
+    <h2>Register</h2>
+    <p style="color: #666; margin-bottom: 25px;">Create a new account to get started.</p>
 
-    <label>Password:</label>
-    <input type="password" name="password1" required>
+    <form method="post">
+        {% csrf_token %}
+        <label>Email Address:</label>
+        <input type="email" name="email" placeholder="email@example.com" required>
 
-    <label>Confirm Password:</label>
-    <input type="password" name="password2" required>
+        <label>Password:</label>
+        <input type="password" name="password1" placeholder="Enter password" required>
 
-    <button class="btn" type="submit">Register</button>
-</form>
-<p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+        <label>Confirm Password:</label>
+        <input type="password" name="password2" placeholder="Confirm password" required>
 
-{% if messages %}
-<ul>
-    {% for message in messages %}
-    <li class="{{ message.tags }}">{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+        <div style="margin-top: 10px;">
+            <button class="btn" type="submit" style="width: 100%;">Create Account</button>
+        </div>
+    </form>
+    
+    <div style="margin-top: 20px; text-align: center; border-top: 1px solid #eee; padding-top: 15px; font-size: 0.95rem;">
+        Already have an account? <a href="{% url 'login' %}" style="font-weight: 500;">Login</a>
+    </div>
+</div>
 {% endblock %}

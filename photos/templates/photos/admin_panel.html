@@ -1,0 +1,558 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Submissions{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        max-width: 1200px !important;
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-title {
+        margin-bottom: 15px;
+        font-size: 1.25rem;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-group label {
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        margin: 0;
+        padding: 8px;
+        font-size: 0.9rem;
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        align-items: flex-end;
+        margin-top: 10px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+
+    .admin-table th {
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .admin-table tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .badge-pending {
+        background-color: #ffeeba;
+        color: #856404;
+    }
+
+    .badge-processed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-failed {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .thumbnail-link {
+        display: inline-block;
+    }
+
+    .thumbnail {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        transition: transform 0.2s;
+    }
+
+    .thumbnail:hover {
+        transform: scale(1.1);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 24px;
+        border: 1px solid #ddd;
+        width: 85%;
+        max-width: 900px;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        position: relative;
+        animation: animatetop 0.25s;
+    }
+
+    @keyframes animatetop {
+        from {
+            top: -50px;
+            opacity: 0
+        }
+
+        to {
+            top: 0;
+            opacity: 1
+        }
+    }
+
+    .close-btn {
+        color: #aaa;
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .close-btn:hover {
+        color: #333;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 5% auto;
+        }
+    }
+
+    .detail-image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f8f9fa;
+        border: 1px solid #eee;
+        border-radius: 6px;
+        padding: 15px;
+        max-height: 400px;
+    }
+
+    .detail-image {
+        max-width: 100%;
+        max-height: 360px;
+        object-fit: contain;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .detail-row {
+        border-bottom: 1px solid #f1f1f1;
+        padding-bottom: 6px;
+    }
+
+    .detail-label {
+        font-size: 0.8rem;
+        color: #777;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: bold;
+        margin-bottom: 2px;
+    }
+
+    .detail-value {
+        font-size: 0.95rem;
+        color: #333;
+    }
+
+    .detail-json-list {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 4px;
+        border: 1px solid #eee;
+        margin-top: 5px;
+        max-height: 120px;
+        overflow-y: auto;
+    }
+
+    .detail-json-list ul {
+        padding-left: 20px;
+        margin: 0;
+    }
+
+    .detail-json-list li {
+        font-size: 0.85rem;
+        color: #444;
+        margin-bottom: 4px;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.85rem;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+</style>
+
+<h2>Admin Panel</h2>
+<p style="color: #666; margin-bottom: 20px;">Review, search, and filter all submitted photo records.</p>
+
+<!-- Search and Filter Form -->
+<div class="card">
+    <div class="card-title">Search & Filters</div>
+    <form method="get" action="{% url 'admin_panel' %}">
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Search Keywords</label>
+            <input type="text" name="search" value="{{ search_query }}"
+                placeholder="Search by submitter email, name, description, place of living, country...">
+        </div>
+
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label for="gender">Gender</label>
+                <select name="gender" id="gender">
+                    <option value="">All Genders</option>
+                    <option value="male" {% if selected_gender == 'male' %}selected{% endif %}>Male</option>
+                    <option value="female" {% if selected_gender == 'female' %}selected{% endif %}>Female</option>
+                    <option value="other" {% if selected_gender == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="status">Status</label>
+                <select name="status" id="status">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="processed" {% if selected_status == 'processed' %}selected{% endif %}>Processed
+                    </option>
+                    <option value="failed" {% if selected_status == 'failed' %}selected{% endif %}>Failed</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="country">Country</label>
+                <select name="country" id="country">
+                    <option value="">All Countries</option>
+                    {% for country in countries %}
+                    <option value="{{ country }}" {% if selected_country == country %}selected{% endif %}>{{ country }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="min_age">Min Age</label>
+                <input type="number" name="min_age" id="min_age" value="{{ min_age }}" min="0" placeholder="e.g. 18">
+            </div>
+
+            <div class="filter-group">
+                <label for="max_age">Max Age</label>
+                <input type="number" name="max_age" id="max_age" value="{{ max_age }}" min="0" placeholder="e.g. 60">
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <a href="{% url 'admin_panel' %}" class="btn btn-secondary">Reset Filters</a>
+            <button type="submit" class="btn">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+<!-- Submissions Table -->
+<div class="card">
+    <div class="card-title">
+        <span>Submitted Records ({{ submissions.count }} found)</span>
+    </div>
+
+    <div class="table-container">
+        {% if submissions %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>User / Submitter</th>
+                    <th>Metadata</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Submitted At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                <tr>
+                    <td>
+                        {% if submission.photo.storage_url %}
+                        <a href="{{ submission.photo.storage_url }}" target="_blank" class="thumbnail-link">
+                            <img src="{{ submission.photo.storage_url }}" alt="{{ submission.name }}" class="thumbnail">
+                        </a>
+                        {% else %}
+                        <span style="font-size: 0.8rem; color: #999;">No image</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span style="font-size: 0.9rem; font-weight: 500;">{{ submission.user.email }}</span>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ submission.name }}</div>
+                        <div style="font-size: 0.85rem; color: #666;">Age: {{ submission.age }} | Gender: {{
+                            submission.gender|capfirst }}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.9rem;">{{ submission.place_of_living }}</div>
+                        <div style="font-size: 0.8rem; color: #666;">{{ submission.country_of_origin }}</div>
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ submission.status }}">{{ submission.get_status_display }}</span>
+                    </td>
+                    <td style="font-size: 0.85rem; color: #666;">
+                        {{ submission.created_at|date:"Y-m-d H:i" }}
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm"
+                            onclick="openModal('{{ submission.id }}')">Review</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 30px; color: #666;">
+            No submissions match your search/filter criteria.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Detailed Modals for each submission -->
+{% for submission in submissions %}
+<div id="modal-{{ submission.id }}" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('{{ submission.id }}')">&times;</span>
+        <h3 style="border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 15px; color: #333;">
+            Review Submission Details
+        </h3>
+
+        <div class="detail-grid">
+            <!-- Left Side: Photo -->
+            <div class="detail-image-container">
+                {% if submission.photo.storage_url %}
+                <img src="{{ submission.photo.storage_url }}" alt="Full submission photo" class="detail-image">
+                {% else %}
+                <p style="color: #999;">No image uploaded for this submission.</p>
+                {% endif %}
+            </div>
+
+            <!-- Right Side: Details -->
+            <div class="detail-info">
+                <div class="detail-row">
+                    <div class="detail-label">Submission ID</div>
+                    <div class="detail-value" style="font-family: monospace; font-size: 0.85rem;">{{ submission.id }}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Submitter</div>
+                    <div class="detail-value">{{ submission.user.email }} (username: {{ submission.user.username }})
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Personal Details</div>
+                    <div class="detail-value">
+                        <strong>Name:</strong> {{ submission.name }}<br>
+                        <strong>Age:</strong> {{ submission.age }} | <strong>Gender:</strong> {{
+                        submission.gender|capfirst }}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Location Details</div>
+                    <div class="detail-value">
+                        {{ submission.place_of_living }}, {{ submission.country_of_origin }}
+                    </div>
+                </div>
+
+                {% if submission.description %}
+                <div class="detail-row">
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value">{{ submission.description }}</div>
+                </div>
+                {% endif %}
+
+                <!-- Safety Rules JSON -->
+                <div class="detail-row">
+                    <div class="detail-label">Safety Rules</div>
+                    <div class="detail-json-list">
+                        {% if submission.safety_rules %}
+                        <ul>
+                            {% for key, val in submission.safety_rules.items %}
+                            <li><strong>{{ key }}:</strong> {{ val }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <span style="font-size: 0.85rem; color: #777; font-style: italic;">No safety rules
+                            provided.</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Classification Results JSON -->
+                <div class="detail-row">
+                    <div class="detail-label">Classification Result</div>
+                    <div class="detail-json-list">
+                        {% if submission.classification_result %}
+                        <ul>
+                            {% for key, val in submission.classification_result.items %}
+                            <li><strong>{{ key }}:</strong> {{ val }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <span style="font-size: 0.85rem; color: #777; font-style: italic;">Pending
+                            classification.</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Action: Status Update Form -->
+                <div style="margin-top: 10px; padding-top: 15px; border-top: 2px dashed #eee;">
+                    <form method="post" action="{% url 'admin_panel' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_status">
+                        <input type="hidden" name="submission_id" value="{{ submission.id }}">
+
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <label style="font-weight: bold; margin-bottom: 0;">Submission Status:</label>
+                            <select name="status" style="width: auto; margin: 0; padding: 6px;">
+                                <option value="pending" {% if submission.status == 'pending' %}selected{% endif %}>Pending
+                                </option>
+                                <option value="processed" {% if submission.status == 'processed' %}selected{% endif %}>
+                                    Processed</option>
+                                <option value="failed" {% if submission.status == 'failed' %}selected{% endif %}>Failed
+                                </option>
+                            </select>
+                            <button type="submit" class="btn btn-sm" style="background-color: #28a745;">Update
+                                Status</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+    function openModal(id) {
+        var modal = document.getElementById('modal-' + id);
+        if (modal) {
+            modal.style.display = 'block';
+        }
+    }
+
+    function closeModal(id) {
+        var modal = document.getElementById('modal-' + id);
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function (event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

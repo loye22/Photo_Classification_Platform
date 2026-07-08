@@ -3,11 +3,30 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1>Welcome to Photo Classification Platform</h1>
+<div style="text-align: center; margin-bottom: 30px; padding: 10px 0;">
+    <h1 style="font-size: 2.2rem; color: #222; margin-bottom: 10px;">Welcome to Photo Classification</h1>
+    <p style="color: #666; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">A premium platform to submit, classify, and review photo records with metadata.</p>
+</div>
+
 {% if user.is_authenticated %}
-<p>Hello, {{ user.email }}!</p>
-<p>You can upload a photo with metadata using the <a href="{% url 'submit' %}">Upload</a> form.</p>
+<div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
+    <h3 style="margin-top: 0; margin-bottom: 10px;">Hello, <span style="color: #007bff;">{{ user.email }}</span>!</h3>
+    <p style="color: #555; margin-bottom: 20px;">You are currently logged in. You can upload new photo records using our submission form.</p>
+    
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="{% url 'submit' %}" class="btn">📤 Upload New Photo</a>
+        {% if user.is_admin %}
+        <a href="{% url 'admin_panel' %}" class="btn" style="background-color: #333; border-color: #333;">🔧 Go to Admin Panel</a>
+        {% endif %}
+    </div>
+</div>
 {% else %}
-<p>Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> to get started.</p>
+<div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 25px; text-align: center;">
+    <p style="color: #555; font-size: 1.05rem; margin-bottom: 20px;">Please login or register an account to get started with photo submissions.</p>
+    <div style="display: flex; justify-content: center; gap: 15px;">
+        <a href="{% url 'login' %}" class="btn">Login</a>
+        <a href="{% url 'register' %}" class="btn" style="background-color: #6c757d; border-color: #6c757d;">Register</a>
+    </div>
+</div>
 {% endif %}
 {% endblock %}
