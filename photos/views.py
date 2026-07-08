@@ -1,11 +1,42 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib import messages
 from .models import User, Photo, Submission
 
 def home(request):
     return render(request, 'home.html')
+
+
+@never_cache
+@ensure_csrf_cookie
+def user_login(request):
+    """Custom login view. Redirects admins to the admin panel after login."""
+    if request.user.is_authenticated:
+        return redirect('admin_panel' if request.user.is_admin else 'home')
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            if user.is_admin:
+                return redirect('admin_panel')
+            # Honour ?next= param for non-admin users
+            next_url = request.POST.get('next') or request.GET.get('next') or '/'
+            return redirect(next_url)
+        else:
+            messages.error(request, 'Invalid email or password.')
+
+    return render(request, 'photos/login.html', {'next': request.GET.get('next', '')})
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('home')
 
 def register(request):
     if request.method == 'POST':

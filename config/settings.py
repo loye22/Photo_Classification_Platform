@@ -120,7 +120,7 @@ STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'photos.User'
 
 
-LOGOUT_REDIRECT_URL = '/login/'   
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
