@@ -1,34 +1,54 @@
 # Virtual environment
 venv/
+.venv/
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
 
 # Django
 db.sqlite3
 media/
 staticfiles/
+local_settings.py
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Logs
 *.log
+logs/
 
 # Test and coverage
 .coverage
+coverage.xml
 htmlcov/
 .pytest_cache/
+.tox/
 
 # Migrations cache
 *.pyc
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Microservices build artifacts
+microservices/**/photos/
+microservices/**/__pycache__/
+microservices/**/*.pyc

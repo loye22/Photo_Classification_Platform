@@ -1,0 +1,21 @@
+services:
+
+  safe-rule-service:
+    build:
+      context: ..
+      dockerfile: microservices/safe_rule_service/Dockerfile
+    volumes:
+      - ../db.sqlite3:/app/db.sqlite3
+    environment:
+      DB_PATH: /app/db.sqlite3
+    restart: "no"
+
+  unsafe-rule-service:
+    build:
+      context: ..
+      dockerfile: microservices/unsafe_rule_service/Dockerfile
+    volumes:
+      - ../db.sqlite3:/app/db.sqlite3
+    environment:
+      DB_PATH: /app/db.sqlite3
+    restart: "no"
