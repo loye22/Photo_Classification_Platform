@@ -27,7 +27,7 @@ Photo_Classification_Platform/
 ### 1. Clone the repo
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/loye22/Photo_Classification_Platform.git
 cd Photo_Classification_Platform
 ```
 
